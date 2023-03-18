@@ -8,6 +8,99 @@ This repository explains a custom implementation about Observable State explaine
 - [Reactive input state for Angular ViewModels](https://blog.simplified.courses/reactive-input-state-for-angular-viewmodels/)
 - [Reactive ViewModels for Ui components in Angular](https://blog.simplified.courses/reactive-viewmodels-for-ui-components-in-angular/)
 
+## How to use observable state for ui components
+
+```typescript
+type MyUiComponentInputState = {
+  firstName: string;
+  lastNam: string;
+  age: number;
+}
+type MyUiComponentState = MyUiComponentInputState & {
+  showAge: number;
+}
+@Component({
+  template: `
+    <ng-container *ngIf="vm$|async as vm">
+        <p>First Name: {{vm.firstName}}</p>
+        <p>Last Name: {{vm.lastName}}</p>
+        <p *ngIf="vm.showAge">Age: {{vm.age}}</p>
+        <button (click)="toggle()">Toggle Age</button>
+    </ng-container>
+  `
+})
+export class MyUiComponent extends ObservableState<MyUiComponentState> {
+  @Input() public firstName = '';
+  @Input() public lastName = '';
+  @Input() public age = 0;
+    
+  constructor() {
+    super();
+    this.initialize({
+      firstName: 'Brecht',
+      lastName: 'Billiet',
+      age: 35,
+      showAge: false,
+    })
+  }
+  
+  public readonly vm$ = this.state$;
+  
+  public toggle(): void {
+      this.patch({showAge: !this.snapshot.showAge})
+  }
+}
+```
+
+## Adding more reactive stuff
+
+In the following example we added `time` to show the current time every second.
+
+```typescript
+type MyUiComponentInputState = {
+  firstName: string;
+  lastNam: string;
+  age: number;
+}
+type MyUiComponentState = MyUiComponentInputState & {
+  showAge: number;
+  time: number;
+}
+@Component({
+  template: `
+    <ng-container *ngIf="vm$|async as vm">
+        <p>First Name: {{vm.firstName}}</p>
+        <p>Last Name: {{vm.lastName}}</p>
+        <p *ngIf="vm.showAge">Age: {{vm.age}}</p>
+        The time is {{vm.time|date:'hh:mm:ss'}}
+        <button (click)="toggle()">Toggle Age</button>
+    </ng-container>
+  `
+})
+export class MyUiComponent extends ObservableState<MyUiComponentState> {
+  @Input() public firstName = '';
+  @Input() public lastName = '';
+  @Input() public age = 0;
+    
+  constructor() {
+    super();
+    this.initialize({
+      firstName: 'Brecht',
+      lastName: 'Billiet',
+      age: 35,
+      showAge: false,
+      time: new Date().getTime()
+    })
+    this.connect({time: interval(1000).pipe(map(() => new Date().getTime()))})
+  }
+  
+  public readonly vm$ = this.state$;
+  
+  public toggle(): void {
+      this.patch({showAge: !this.snapshot.showAge})
+  }
+}
+```
 
 ## Run demo
 
