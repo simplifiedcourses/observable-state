@@ -1,0 +1,35 @@
+<div class="product-overview__content" *ngIf="vm$|async as vm">
+  <sh-sidebar
+    [categories]="vm.categories"
+    class="product-overview__content-left"
+  ></sh-sidebar>
+  <div class="product-overview__content-right">
+    <sh-breadcrumb [breadcrumbItems]="breadcrumbItems"></sh-breadcrumb>
+    <div class="product-overview__content-right-top">
+      <h1>Product overview</h1>
+      <form>
+        <label>
+          <input placeholder="Type to filter..." type="text" data-cy="input__search"
+                 (input)="setQuery($event)" [value]="vm.query" />
+        </label>
+      </form>
+    </div>
+    <div class="product-overview__content-right-items">
+      <sh-product
+        data-cy="product__item"
+        *ngFor="let product of vm.products"
+        [product]="product"
+        class="product-overview__content-right-item"
+      ></sh-product>
+    </div>
+    <sh-pager
+      [itemsPerPage]="vm.itemsPerPage"
+      [total]="vm.total"
+      [pageIndex]="vm.pageIndex"
+      (itemsPerPageChange)="itemsPerPageChange($event)"
+      (pageIndexChange)="pageIndexChange($event)"
+    >
+    </sh-pager>
+    {{vm.time|date: 'hh:mm:ss'}}
+  </div>
+</div>

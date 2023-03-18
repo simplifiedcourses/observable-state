@@ -1,0 +1,91 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'variables';
+@import 'normalize.css';
+
+* {
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 200;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  padding-bottom: $shoppie__gridunit * 2;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  label {
+    padding-bottom: $shoppie__gridunit * 2;
+    display: flex;
+
+    span {
+      width: 200px;
+    }
+
+    input,
+    select,
+    textarea {
+      flex: 1;
+      border-radius: $shoppie__gridunit;
+      padding: $shoppie__gridunit;
+      border: 1px solid $shoppie-color__grey;
+      width: 100%;
+    }
+
+    display: flex;
+  }
+}
+
+table {
+  width: 100%;
+
+  thead th {
+    background: $shoppie-color__accent;
+    padding: $shoppie__gridunit * 2;
+    color: $shoppie-color__white;
+    font-weight: bold;
+
+    &:first-child {
+      border-top-left-radius: $shoppie__gridunit * 2;
+    }
+
+    &:last-child {
+      border-top-right-radius: $shoppie__gridunit * 2;
+    }
+  }
+
+  tbody {
+    tr:last-child {
+      td {
+        &:first-child {
+          border-bottom-left-radius: $shoppie__gridunit * 2;
+        }
+
+        &:last-child {
+          border-bottom-right-radius: $shoppie__gridunit * 2;
+        }
+      }
+    }
+
+    td {
+      padding: $shoppie__gridunit * 2;
+      border: 1px solid $shoppie-color__accent;
+    }
+  }
+}

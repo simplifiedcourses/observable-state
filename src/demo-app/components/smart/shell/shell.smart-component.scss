@@ -1,0 +1,25 @@
+@import '../../../../variables';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .shell {
+    &__content {
+      display: flex;
+      flex: 1;
+      height: 100%;
+
+      &-left {
+        width: 250px;
+      }
+
+      &-right {
+        padding: $shoppie__gridunit * 2 $shoppie__gridunit * 4;
+        flex: 1;
+        overflow-y: auto;
+      }
+    }
+  }
+}

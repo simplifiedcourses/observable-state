@@ -1,0 +1,26 @@
+<div *ngIf="category$|async as category" class="category-detail__content">
+  <sh-sidebar
+    [categories]="(categories$|async)!"
+    class="category-detail__content-left"
+  ></sh-sidebar>
+  <div class="category-detail__content-right">
+    <sh-breadcrumb
+      [breadcrumbItems]="(breadcrumbItems$|async)!"
+    ></sh-breadcrumb>
+    <div class="category-detail__content-right-top">
+      <h1>{{category.name}}</h1>
+      <form>
+        <label>
+          <input placeholder="Type to filter..." type="text" />
+        </label>
+      </form>
+    </div>
+    <div class="category-detail__content-right-items">
+      <sh-product
+        *ngFor="let product of productsByCategory$|async"
+        [product]="product"
+        class="category-detail__content-right-item"
+      ></sh-product>
+    </div>
+  </div>
+</div>

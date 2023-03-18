@@ -1,0 +1,25 @@
+<div class="product-detail__content">
+  <sh-sidebar
+    [categories]="(categories$|async)!"
+    class="product-detail__content-left"
+  ></sh-sidebar>
+  <div class="product-detail__content-right">
+    <sh-breadcrumb
+      [breadcrumbItems]="(breadcrumbItems$|async)!"
+    ></sh-breadcrumb>
+    <div *ngIf="product$|async as product" class="product-detail__product">
+      <div class="product-detail__product-left">
+        <h1>{{product.name}}</h1>
+        <h2>Description</h2>
+        <p>{{product.description}}</p>
+        <h2>Advice</h2>
+        <p>{{product.advice}}</p>
+      </div>
+      <div class="product-detail__product-right">
+        <div class="product__image-placeholder"></div>
+        <span class="product__price">{{product?.price}}</span>
+        <button shButton (click)="addToShoppingCart()">Add to shopping cart</button>
+      </div>
+    </div>
+  </div>
+</div>

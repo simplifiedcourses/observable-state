@@ -1,0 +1,12 @@
+@import 'variables';
+
+:host {
+  padding: $shoppie__gridunit * 2 $shoppie__gridunit * 4;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  a {
+    margin-top: $shoppie-_gridunit * 2;
+  }
+}

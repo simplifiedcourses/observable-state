@@ -1,0 +1,6 @@
+<ng-container *ngIf="vm$|async as vm">
+  <sh-topbar [shoppingcartAmount]="vm.amount"></sh-topbar>
+  <div class="shell__content">
+    <router-outlet></router-outlet>
+  </div>
+</ng-container>
