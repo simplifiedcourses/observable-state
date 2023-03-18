@@ -11,6 +11,8 @@ This repository explains a custom implementation about Observable State explaine
 ## How to use observable state for ui components
 
 ```typescript
+import { InputState } from './input-state-decorator';
+import { ObservableState } from './observable-state';
 type MyUiComponentInputState = {
   firstName: string;
   lastNam: string;
@@ -30,6 +32,7 @@ type MyUiComponentState = MyUiComponentInputState & {
   `
 })
 export class MyUiComponent extends ObservableState<MyUiComponentState> {
+  @InputState() public readonly inputState$!: ObservableState<MyUiComponentInputState>
   @Input() public firstName = '';
   @Input() public lastName = '';
   @Input() public age = 0;
@@ -41,7 +44,7 @@ export class MyUiComponent extends ObservableState<MyUiComponentState> {
       lastName: 'Billiet',
       age: 35,
       showAge: false,
-    })
+    }, this.inputState$)
   }
   
   public readonly vm$ = this.state$;
@@ -57,6 +60,9 @@ export class MyUiComponent extends ObservableState<MyUiComponentState> {
 In the following example we added `time` to show the current time every second.
 
 ```typescript
+import { InputState } from './input-state-decorator';
+import { ObservableState } from './observable-state';
+
 type MyUiComponentInputState = {
   firstName: string;
   lastNam: string;
@@ -66,6 +72,7 @@ type MyUiComponentState = MyUiComponentInputState & {
   showAge: number;
   time: number;
 }
+
 @Component({
   template: `
     <ng-container *ngIf="vm$|async as vm">
@@ -78,10 +85,11 @@ type MyUiComponentState = MyUiComponentInputState & {
   `
 })
 export class MyUiComponent extends ObservableState<MyUiComponentState> {
+  @InputState() public readonly inputState$!: ObservableState<MyUiComponentInputState>
   @Input() public firstName = '';
   @Input() public lastName = '';
   @Input() public age = 0;
-    
+
   constructor() {
     super();
     this.initialize({
@@ -90,14 +98,14 @@ export class MyUiComponent extends ObservableState<MyUiComponentState> {
       age: 35,
       showAge: false,
       time: new Date().getTime()
-    })
-    this.connect({time: interval(1000).pipe(map(() => new Date().getTime()))})
+    }, this.inputState$);
+    this.connect({ time: interval(1000).pipe(map(() => new Date().getTime())) })
   }
-  
+
   public readonly vm$ = this.state$;
-  
+
   public toggle(): void {
-      this.patch({showAge: !this.snapshot.showAge})
+    this.patch({ showAge: !this.snapshot.showAge })
   }
 }
 ```
