@@ -57,38 +57,19 @@ export class ProductOverviewSmartComponent extends ObservableState<ProductOvervi
     },
   ];
 
-  constructor() {
-    super();
-    this.initialize({
-      pageIndex: 0,
-      itemsPerPage: 5,
-      query: '',
-      categories: [],
-      products: [],
-      filteredProducts: [],
-      pagedProducts: [],
-      time: new Date().getTime()
-    });
-    const filteredProducts$ = this.onlySelectWhen(['products', 'query']).pipe(
-      map(({ products, query }) => products.filter(p => p.name.toLowerCase().indexOf(query.toLowerCase()) > -1))
-    );
-
-    const pagedProducts$ = this.onlySelectWhen(['filteredProducts', 'pageIndex', 'itemsPerPage']).pipe(
-      map(({ filteredProducts, pageIndex, itemsPerPage }) => {
-        const offsetStart = (pageIndex) * itemsPerPage;
-        const offsetEnd = (pageIndex + 1) * itemsPerPage;
-        return filteredProducts.slice(offsetStart, offsetEnd);
-      })
-    )
-    this.connect({
-      products: this.facadeService.getProducts(),
-      categories: this.facadeService.getCategories(),
-      filteredProducts: filteredProducts$,
-      pagedProducts: pagedProducts$,
-      time: interval(1000).pipe(map(() => new Date().getTime()))
+  private readonly filteredProducts$ = this.onlySelectWhen(['products', 'query']).pipe(
+    map(({ products, query }) => {
+      return products.filter(p => p.name.toLowerCase().indexOf(query.toLowerCase()) > -1)
     })
-  }
+  );
 
+  private readonly pagedProducts$ = this.onlySelectWhen(['filteredProducts', 'pageIndex', 'itemsPerPage']).pipe(
+    map(({ filteredProducts, pageIndex, itemsPerPage }) => {
+      const offsetStart = (pageIndex) * itemsPerPage;
+      const offsetEnd = (pageIndex + 1) * itemsPerPage;
+      return filteredProducts.slice(offsetStart, offsetEnd);
+    })
+  );
   public readonly vm$: Observable<ViewModel> = this.onlySelectWhen([
     'categories',
     'pagedProducts',
@@ -110,6 +91,30 @@ export class ProductOverviewSmartComponent extends ObservableState<ProductOvervi
       }
     })
   )
+
+  constructor() {
+    super();
+    this.initialize({
+      pageIndex: 0,
+      itemsPerPage: 5,
+      query: '',
+      categories: [],
+      products: [],
+      filteredProducts: [],
+      pagedProducts: [],
+      time: new Date().getTime()
+    });
+
+    this.connect({
+      products: this.facadeService.getProducts(),
+      categories: this.facadeService.getCategories(),
+      filteredProducts: this.filteredProducts$,
+      pagedProducts: this.pagedProducts$,
+      time: interval(1000).pipe(map(() => new Date().getTime()))
+    })
+  }
+
+
 
   public setQuery(e: Event): void {
     this.patch({ pageIndex: 0, query: (e.target as HTMLInputElement).value })

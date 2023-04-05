@@ -6,7 +6,7 @@ import {
   filter,
   map,
   Observable,
-  observeOn,
+  observeOn, Observer,
   pipe,
   queueScheduler,
   ReplaySubject,
@@ -24,21 +24,26 @@ const filterAndCastToT: <T>() => UnaryFunction<
     map((v) => v as T)
   );
 
+export class StateSubject<T> extends BehaviorSubject<T>{
+  // never gets out of sync subscription wise
+  // no more need for queueSchedulers?
+  public readonly syncState = this.pipe(map(() => this.value))
+}
+
 @Injectable()
 export class ObservableState<T extends Record<string, unknown>>
   implements OnDestroy {
   private readonly notInitializedError =
     'Observable state is not initialized yet, call the initialize() method';
   private readonly destroy$$ = new Subject<void>();
-  private readonly state$$ = new BehaviorSubject<T | null>(null);
-
+  private readonly state$$ = new StateSubject<T | null>(null);
   /**
    * Return the entire state as an observable
    * Only use this if you want to be notified on every update. For better optimization
    * use the onlySelectWhen() method
    * where we can pass keys on when to notify.
    */
-  public readonly state$ = connectable(this.state$$.pipe(
+  public readonly state$ = connectable(this.state$$.syncState.pipe(
     filterAndCastToT<T>(),
     distinctUntilChanged((previous: T, current: T) =>
       Object.keys(current).every(
@@ -46,7 +51,7 @@ export class ObservableState<T extends Record<string, unknown>>
       )
     ),
     takeUntil(this.destroy$$)
-  ), {connector: () => new ReplaySubject(1)});
+  ), { connector: () => new ReplaySubject(1) });
 
   /**
    * Get a snapshot of the current state. This method is needed when we want to fetch the
@@ -67,16 +72,12 @@ export class ObservableState<T extends Record<string, unknown>>
    * @param inputState$
    */
   public initialize(state: T, inputState$?: Observable<Partial<T>>): void {
-    this.state$.connect();
-    this.state$$.next(state);
-    if (inputState$) {
-      inputState$
-        .pipe(
-          observeOn(queueScheduler),
-          takeUntil(this.destroy$$)
-        )
-        .subscribe((res: Partial<T>) => this.patch(res));
-    }
+    this.state$.connect(); // Make the state$ hot immediately
+    this.state$$.next(state); // pass initial state
+    // Feed the state when the input state gets a new value
+    inputState$?.pipe(
+      takeUntil(this.destroy$$)
+    ).subscribe((res: Partial<T>) => this.patch(res));
   }
 
   /**
@@ -86,14 +87,11 @@ export class ObservableState<T extends Record<string, unknown>>
    */
   public connect(object: Partial<{ [P in keyof T]: Observable<T[P]> }>): void {
     Object.keys(object).forEach((key: keyof Partial<T>) => {
-      object[key]
-        ?.pipe(
-          observeOn(queueScheduler),
-          takeUntil(this.destroy$$)
-        )
-        .subscribe((v: Partial<T>[keyof Partial<T>]) => {
-          this.patch({ [key]: v } as Partial<T>);
-        });
+      object[key]?.pipe(
+        takeUntil(this.destroy$$)
+      ).subscribe((v: Partial<T>[keyof Partial<T>]) => {
+        this.patch({ [key]: v } as Partial<T>);
+      });
     });
   }
 
@@ -102,7 +100,7 @@ export class ObservableState<T extends Record<string, unknown>>
    * @param keys
    */
   public onlySelectWhen(keys: (keyof T)[]): Observable<{ [P in keyof T]: T[P] }> {
-    const obs$ = connectable(this.state$$.pipe(
+    const obs$ = connectable(this.state$$.syncState.pipe(
       filterAndCastToT<T>(),
       distinctUntilChanged((previous: T, current: T) =>
         keys.every(
@@ -110,8 +108,9 @@ export class ObservableState<T extends Record<string, unknown>>
             current[key as keyof T] === previous[key as keyof T]
         )
       ),
+      observeOn(queueScheduler),
       takeUntil(this.destroy$$)
-    ), { connector: () => new ReplaySubject(1) });
+    ), { connector: () => new ReplaySubject(1) })
     obs$.connect();
     return obs$;
   }
