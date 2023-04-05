@@ -66,26 +66,6 @@ export class SignalState<T extends Record<string, unknown>> implements OnDestroy
   }
 
   /**
-   * Returns the entire state when one of the properties matching the passed keys changes
-   * @param keys
-   */
-
-  public onlySelectWhen(keys: (keyof T)[]): Signal<T> {
-    if (!this.signals) {
-      throw new Error(this.notInitializedError);
-    }
-    const snapshot = this.state();
-    const state = signal(snapshot);
-    computed(() => {
-      keys.forEach((key) => {
-        this.select(key)();
-      })
-      state.set(this.state())
-    })
-    return state;
-  }
-
-  /**
    * Patch a partial of the state. It will loop over all the properties of the passed
    * object and only next the state once.
    * @param object
