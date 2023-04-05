@@ -1,0 +1,39 @@
+@import '../../../../variables';
+
+.product-overview {
+  &__content {
+    display: flex;
+    flex: 1;
+    height: 100%;
+
+    &-left {
+      width: 250px;
+    }
+
+    &-right {
+      padding: $shoppie__gridunit * 2 $shoppie__gridunit * 4;
+      flex: 1;
+      overflow-y: auto;
+
+      &-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        form {
+          width: 200px;
+        }
+      }
+
+      &-items {
+        align-content: start;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      &-item {
+        margin: $shoppie__gridunit;
+      }
+    }
+  }
+}

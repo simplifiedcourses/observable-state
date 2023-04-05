@@ -11,15 +11,6 @@ import { SidebarUiComponent } from '../../ui/sidebar/sidebar.ui-component';
 import { BreadcrumbUiComponent } from '../../ui/breadcrumb/breadcrumb.ui-component';
 import { ProductUiComponent } from '../../ui/product/product.ui-component';
 
-type ViewModel = {
-  categories: Category[];
-  query: string;
-  products: Product[];
-  itemsPerPage: number;
-  total: number;
-  pageIndex: number;
-  time: number
-}
 type ProductOverviewState = {
   pageIndex: number;
   query: string;
@@ -29,6 +20,10 @@ type ProductOverviewState = {
   filteredProducts: Product[];
   pagedProducts: Product[];
   time: number;
+}
+
+type ViewModel = Pick<ProductOverviewState, 'categories'|'query'|'products'|'itemsPerPage'|'pageIndex'|'time'> & {
+  total: number;
 }
 
 @Component({

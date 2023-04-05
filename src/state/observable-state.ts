@@ -99,7 +99,7 @@ export class ObservableState<T extends Record<string, unknown>>
    * Returns the entire state when one of the properties matching the passed keys changes
    * @param keys
    */
-  public onlySelectWhen(keys: (keyof T)[]): Observable<{ [P in keyof T]: T[P] }> {
+  public onlySelectWhen(keys: (keyof T)[]): Observable<T> {
     const obs$ = connectable(this.state$$.syncState.pipe(
       filterAndCastToT<T>(),
       distinctUntilChanged((previous: T, current: T) =>

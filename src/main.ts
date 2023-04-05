@@ -10,6 +10,9 @@ import {
   CategoryDetailSmartComponent
 } from './demo-app/components/smart/category-detail/category-detail.smart-component';
 import { ShoppingCartSmartComponent } from './demo-app/components/smart/shopping-cart/shopping-cart.smart-component';
+import {
+  ProductOverviewSignalSmartComponent
+} from './demo-app/components/smart/product-overview-signal/product-overview-signal-smart.component';
 
 
 bootstrapApplication(AppComponent, {
@@ -28,11 +31,24 @@ bootstrapApplication(AppComponent, {
           {
             path: 'products',
             component: ProductOverviewSmartComponent,
+            children: [
+              {
+                path: ':productId',
+                component: ProductDetailSmartComponent,
+              }
+            ]
           },
           {
-            path: 'products/:productId',
-            component: ProductDetailSmartComponent,
+            path: 'products-signal',
+            component: ProductOverviewSignalSmartComponent,
+            children: [
+              {
+                path: ':productId',
+                component: ProductDetailSmartComponent,
+              }
+            ]
           },
+
           {
             path: 'categories/:categoryId',
             component: CategoryDetailSmartComponent,
