@@ -1,33 +1,27 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import {
   BehaviorSubject,
-  connectable,
   distinctUntilChanged,
   filter,
   map,
   Observable,
-  observeOn, Observer,
+  observeOn,
   pipe,
   queueScheduler,
-  ReplaySubject,
   Subject,
   takeUntil,
-  UnaryFunction,
 } from 'rxjs';
 
-const filterAndCastToT: <T>() => UnaryFunction<
-  Observable<T | null>,
-  Observable<T>
-> = <T>() =>
+const filterAndCastToT = <T>() =>
   pipe(
     filter((v: T | null) => v !== null),
     map((v) => v as T)
   );
 
-export class StateSubject<T> extends BehaviorSubject<T>{
+export class StateSubject<T> extends BehaviorSubject<T> {
   // never gets out of sync subscription wise
   // no more need for queueSchedulers?
-  public readonly syncState = this.pipe(map(() => this.value))
+  public readonly syncState = this.asObservable().pipe(map(() => observeOn(queueScheduler))) as Observable<T>
 }
 
 @Injectable()
@@ -43,7 +37,7 @@ export class ObservableState<T extends Record<string, unknown>>
    * use the onlySelectWhen() method
    * where we can pass keys on when to notify.
    */
-  public readonly state$ = connectable(this.state$$.syncState.pipe(
+  public readonly state$ = this.state$$.syncState.pipe(
     filterAndCastToT<T>(),
     distinctUntilChanged((previous: T, current: T) =>
       Object.keys(current).every(
@@ -51,7 +45,7 @@ export class ObservableState<T extends Record<string, unknown>>
       )
     ),
     takeUntil(this.destroy$$)
-  ), { connector: () => new ReplaySubject(1) });
+  );
 
   /**
    * Get a snapshot of the current state. This method is needed when we want to fetch the
@@ -72,7 +66,6 @@ export class ObservableState<T extends Record<string, unknown>>
    * @param inputState$
    */
   public initialize(state: T, inputState$?: Observable<Partial<T>>): void {
-    this.state$.connect(); // Make the state$ hot immediately
     this.state$$.next(state); // pass initial state
     // Feed the state when the input state gets a new value
     inputState$?.pipe(
@@ -100,7 +93,7 @@ export class ObservableState<T extends Record<string, unknown>>
    * @param keys
    */
   public onlySelectWhen(keys: (keyof T)[]): Observable<T> {
-    const obs$ = connectable(this.state$$.syncState.pipe(
+    return this.state$$.syncState.pipe(
       filterAndCastToT<T>(),
       distinctUntilChanged((previous: T, current: T) =>
         keys.every(
@@ -108,11 +101,8 @@ export class ObservableState<T extends Record<string, unknown>>
             current[key as keyof T] === previous[key as keyof T]
         )
       ),
-      observeOn(queueScheduler),
       takeUntil(this.destroy$$)
-    ), { connector: () => new ReplaySubject(1) })
-    obs$.connect();
-    return obs$;
+    )
   }
 
   /**
