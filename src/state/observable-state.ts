@@ -21,7 +21,7 @@ const filterAndCastToT = <T>() =>
 export class StateSubject<T> extends BehaviorSubject<T> {
   // never gets out of sync subscription wise
   // no more need for queueSchedulers?
-  public readonly syncState = this.asObservable().pipe(map(() => observeOn(queueScheduler))) as Observable<T>
+  public readonly syncState = this.asObservable().pipe(observeOn(queueScheduler)) as Observable<T>
 }
 
 @Injectable()
