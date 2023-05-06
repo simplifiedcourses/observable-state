@@ -1,16 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import {
-  BehaviorSubject,
-  distinctUntilChanged,
-  filter,
-  map,
-  Observable,
-  observeOn,
-  pipe,
-  queueScheduler,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, map, Observable, pipe, Subject, takeUntil, } from 'rxjs';
 
 const filterAndCastToT = <T>() =>
   pipe(
@@ -18,10 +7,10 @@ const filterAndCastToT = <T>() =>
     map((v) => v as T)
   );
 
+// we need this dirty fix because of an issue with BehaviorSubject
+// queuescheduler didn't cut it
 export class StateSubject<T> extends BehaviorSubject<T> {
-  // never gets out of sync subscription wise
-  // no more need for queueSchedulers?
-  public readonly syncState = this.asObservable().pipe(observeOn(queueScheduler)) as Observable<T>
+  public readonly syncState = this.asObservable().pipe(map(() => this.value)) as Observable<T>
 }
 
 @Injectable()
