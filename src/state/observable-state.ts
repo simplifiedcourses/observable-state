@@ -95,6 +95,14 @@ export class ObservableState<T extends Record<string, unknown>>
   }
 
   /**
+   * Returns an observable of a specifically selected piece of state by a key
+   * @param key
+   */
+  public select<P extends keyof T>(key: P): Observable<T[P]> {
+    return this.onlySelectWhen([key]).pipe(map((state) => state[key]));
+  }
+
+  /**
    * Patch a partial of the state. It will loop over all the properties of the passed
    * object and only next the state once.
    * @param object
