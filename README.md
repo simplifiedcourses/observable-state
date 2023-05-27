@@ -33,7 +33,7 @@ type MyUiComponentState = MyUiComponentInputState & {
   `
 })
 export class MyUiComponent extends ObservableState<MyUiComponentState> {
-  @InputState() public readonly inputState$!: ObservableState<MyUiComponentInputState>
+  @InputState() public readonly inputState$!: Observable<MyUiComponentInputState>
   @Input() public firstName = '';
   @Input() public lastName = '';
   @Input() public age = 0;
@@ -48,7 +48,7 @@ export class MyUiComponent extends ObservableState<MyUiComponentState> {
     }, this.inputState$)
   }
   
-  public readonly vm$ = this.state$;
+  public readonly vm$ = this.state$.pipe(map(state) => {...});
   
   public toggle(): void {
       this.patch({showAge: !this.snapshot.showAge})
@@ -86,7 +86,7 @@ type MyUiComponentState = MyUiComponentInputState & {
   `
 })
 export class MyUiComponent extends ObservableState<MyUiComponentState> {
-  @InputState() public readonly inputState$!: ObservableState<MyUiComponentInputState>
+  @InputState() public readonly inputState$!: Observable<MyUiComponentInputState>
   @Input() public firstName = '';
   @Input() public lastName = '';
   @Input() public age = 0;
